@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Loader2, UploadCloud } from "lucide-react";
+import { ArrowLeft, Loader2, UploadCloud, ImageOff } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -31,7 +31,7 @@ const formSchema = z.object({
   price: z.coerce.number().positive({ message: "Price must be a positive number" }),
   category: z.string().min(1, { message: "Please select a category" }),
   stock: z.coerce.number().int().positive({ message: "Stock must be a positive integer" }),
-  image_url: z.string().url({ message: "Please enter a valid image URL" }).optional(),
+  image_url: z.string().min(1, { message: "Please enter an image URL" }).optional(),
 });
 
 export default function AddProduct() {
@@ -39,6 +39,7 @@ export default function AddProduct() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageError, setImageError] = useState<boolean>(false);
   
   // Initialize form
   const form = useForm<z.infer<typeof formSchema>>({
@@ -55,11 +56,23 @@ export default function AddProduct() {
 
   // Handle image URL change to show preview
   const handleImageUrlChange = (url: string) => {
-    if (url && url.match(/^https?:\/\/.+\.(jpeg|jpg|png|webp|gif)$/i)) {
-      setImagePreview(url);
-    } else {
+    if (!url) {
       setImagePreview(null);
+      setImageError(false);
+      return;
     }
+    
+    // Create a new image element to test if the URL loads correctly
+    const img = new Image();
+    img.onload = () => {
+      setImagePreview(url);
+      setImageError(false);
+    };
+    img.onerror = () => {
+      setImagePreview(null);
+      setImageError(true);
+    };
+    img.src = url;
   };
 
   // Handle form submission
@@ -223,6 +236,11 @@ export default function AddProduct() {
                         <FormDescription>
                           Enter a valid URL for your product image
                         </FormDescription>
+                        {imageError && (
+                          <p className="text-sm text-destructive mt-1">
+                            Unable to load image. Please check the URL.
+                          </p>
+                        )}
                         <FormMessage />
                       </FormItem>
                     )}
@@ -236,11 +254,21 @@ export default function AddProduct() {
                           src={imagePreview} 
                           alt="Product preview" 
                           className="max-h-full max-w-full object-contain rounded-md"
+                          onError={() => setImageError(true)}
                         />
                       ) : (
                         <div className="text-center p-4 text-muted-foreground">
-                          <UploadCloud className="mx-auto h-12 w-12 mb-2" />
-                          <p>Image preview will appear here</p>
+                          {imageError ? (
+                            <>
+                              <ImageOff className="mx-auto h-12 w-12 mb-2 text-destructive" />
+                              <p>Failed to load image</p>
+                            </>
+                          ) : (
+                            <>
+                              <UploadCloud className="mx-auto h-12 w-12 mb-2" />
+                              <p>Image preview will appear here</p>
+                            </>
+                          )}
                         </div>
                       )}
                     </div>
