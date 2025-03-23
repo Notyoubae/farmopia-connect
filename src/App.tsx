@@ -20,7 +20,8 @@ import RoleSelection from "./pages/RoleSelection";
 import Reviews from "./pages/Reviews";
 import FarmersList from "./pages/FarmersList";
 import Products from "./pages/Products";
-import ProductDetail from "./pages/ProductDetail"; // Import the new page
+import ProductDetail from "./pages/ProductDetail";
+import AddProduct from "./pages/AddProduct"; // Import the new page
 
 const queryClient = new QueryClient();
 
@@ -46,7 +47,17 @@ const App = () => (
               <Route path="/farmers" element={<FarmersList />} />
               <Route path="/reviews/:farmerId" element={<Reviews />} />
               <Route path="/products" element={<Products />} />
-              <Route path="/products/:productId" element={<ProductDetail />} /> {/* Add the product detail route */}
+              <Route path="/products/:productId" element={<ProductDetail />} />
+              
+              {/* Protected routes for farmers */}
+              <Route 
+                path="/products/add" 
+                element={
+                  <ProtectedRoute requiredRole="farmer">
+                    <AddProduct />
+                  </ProtectedRoute>
+                } 
+              />
               
               {/* Protected routes for all authenticated users */}
               {/* Add protected routes here, for example:
