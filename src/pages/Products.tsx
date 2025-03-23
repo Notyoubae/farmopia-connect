@@ -253,6 +253,11 @@ export default function Products() {
     return cart.reduce((total, item) => total + (item.item.price * item.quantity), 0);
   };
 
+  // Navigate to product detail page
+  const handleViewProductDetail = (productId: number) => {
+    navigate(`/products/${productId}`);
+  };
+
   return (
     <div className="container mx-auto py-8 px-4 md:px-6">
       <div className="mb-6">
@@ -490,14 +495,17 @@ export default function Products() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredItems.map(item => (
                 <Card key={item.id} className="overflow-hidden flex flex-col h-full">
-                  <div className="aspect-square overflow-hidden">
+                  <div 
+                    className="aspect-square overflow-hidden cursor-pointer"
+                    onClick={() => handleViewProductDetail(item.id)}
+                  >
                     <img
                       src={item.image_url}
                       alt={item.name}
                       className="h-full w-full object-cover transition-transform hover:scale-105"
                     />
                   </div>
-                  <CardHeader className="p-4 pb-0">
+                  <CardHeader className="p-4 pb-0 cursor-pointer" onClick={() => handleViewProductDetail(item.id)}>
                     <CardTitle className="text-lg">{item.name}</CardTitle>
                     <Badge variant="outline" className="mt-2 mb-0">{item.category}</Badge>
                   </CardHeader>
